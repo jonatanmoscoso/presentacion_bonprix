@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bonprix — Bot 2.0</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --verde:#1A6B45;--verde2:#25905E;--verde3:#A8D5B8;--verde4:#E8F5EE;
+  --amarillo:#F5C842;--gris:#2C2C2C;--gris2:#4A4A4A;--gris3:#F5F5F3;
+  --blanco:#fff;--rojo:#C0392B;
+}
+html{scroll-behavior:smooth;font-size:16px}
+body{font-family:'DM Sans',sans-serif;background:#0E1A13;color:#fff;overflow-x:hidden}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1rem 2.5rem;background:rgba(14,26,19,0.85);backdrop-filter:blur(12px);border-bottom:1px solid rgba(168,213,184,0.15)}
+.nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;color:var(--verde3);letter-spacing:0.05em}
+.nav-dots{display:flex;gap:0.5rem}
+.nav-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.2);cursor:pointer;transition:all 0.3s}
+.nav-dot.active{background:var(--amarillo);transform:scale(1.3)}
+
+/* SLIDES */
+.deck{width:100vw}
+.slide{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:5rem 2.5rem 3rem;position:relative;overflow:hidden}
+.slide + .slide{border-top:1px solid rgba(168,213,184,0.1)}
+
+/* SLIDE 1 — PORTADA */
+.s1{background:linear-gradient(135deg,#0E1A13 0%,#122A1C 60%,#0E1A13 100%)}
+.s1-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.s1-circle{position:absolute;border-radius:50%;opacity:0.07}
+.s1-c1{width:600px;height:600px;background:var(--verde);top:-150px;right:-150px}
+.s1-c2{width:400px;height:400px;background:var(--amarillo);bottom:-100px;left:-100px}
+.s1-tag{display:inline-block;background:rgba(245,200,66,0.15);border:1px solid rgba(245,200,66,0.4);color:var(--amarillo);font-size:0.75rem;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;padding:0.35rem 0.9rem;border-radius:100px;margin-bottom:1.5rem}
+.s1-title{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(3rem,8vw,6rem);line-height:1;margin-bottom:0.5rem}
+.s1-title span{color:var(--amarillo)}
+.s1-sub{font-size:1.2rem;color:rgba(255,255,255,0.55);margin-bottom:3rem;font-weight:300}
+.s1-quote{border-left:3px solid var(--verde2);padding:1rem 1.5rem;background:rgba(26,107,69,0.15);border-radius:0 0.5rem 0.5rem 0;max-width:520px}
+.s1-quote p{font-size:1.1rem;font-style:italic;color:rgba(255,255,255,0.8);line-height:1.6}
+.s1-quote strong{color:var(--amarillo)}
+.scroll-hint{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:0.5rem;opacity:0.4;font-size:0.75rem;letter-spacing:0.05em}
+.scroll-arrow{width:1px;height:40px;background:linear-gradient(to bottom,transparent,rgba(255,255,255,0.6));animation:scrollDown 1.5s ease-in-out infinite}
+@keyframes scrollDown{0%,100%{opacity:0.3;transform:scaleY(0.8)}50%{opacity:1;transform:scaleY(1)}}
+
+/* SLIDE 2 — DIAGNÓSTICO */
+.s2{background:#0E1A13}
+.slide-label{font-size:0.72rem;font-weight:500;letter-spacing:0.15em;text-transform:uppercase;color:var(--verde3);margin-bottom:0.75rem;opacity:0.7}
+.slide-title{font-family:'Syne',sans-serif;font-weight:700;font-size:clamp(1.8rem,4vw,2.8rem);margin-bottom:2.5rem;line-height:1.2}
+.slide-title em{font-style:normal;color:var(--amarillo)}
+.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2.5rem}
+.metric-card{background:rgba(26,107,69,0.12);border:1px solid rgba(26,107,69,0.3);border-radius:12px;padding:1.5rem 1rem;text-align:center;transition:all 0.3s}
+.metric-card:hover{background:rgba(26,107,69,0.22);transform:translateY(-3px)}
+.metric-val{font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:800;color:var(--verde3);display:block}
+.metric-label{font-size:0.8rem;color:rgba(255,255,255,0.5);margin-top:0.25rem;display:block}
+.problems-list{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem}
+.problem-item{display:flex;gap:0.75rem;align-items:flex-start;background:rgba(192,57,43,0.08);border:1px solid rgba(192,57,43,0.2);border-radius:10px;padding:0.9rem 1rem}
+.problem-icon{width:20px;height:20px;min-width:20px;border-radius:50%;background:var(--rojo);display:flex;align-items:center;justify-content:center;font-size:0.7rem;margin-top:0.1rem}
+.problem-text{font-size:0.85rem;color:rgba(255,255,255,0.75);line-height:1.5}
+
+/* SLIDE 3 — PROPUESTA ARQUITECTURA */
+.s3{background:#0A1510}
+.arch-compare{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:1rem}
+.arch-col{border-radius:14px;overflow:hidden}
+.arch-col-header{padding:1rem 1.25rem;font-family:'Syne',sans-serif;font-weight:700;font-size:0.9rem;letter-spacing:0.05em}
+.arch-col.old .arch-col-header{background:rgba(192,57,43,0.25);color:#E57373;border-bottom:1px solid rgba(192,57,43,0.3)}
+.arch-col.new .arch-col-header{background:rgba(26,107,69,0.3);color:var(--verde3);border-bottom:1px solid rgba(26,107,69,0.4)}
+.arch-col-body{padding:0.75rem 0}
+.arch-row{display:flex;align-items:center;gap:0.75rem;padding:0.65rem 1.25rem;transition:background 0.2s}
+.arch-row:hover{background:rgba(255,255,255,0.04)}
+.arch-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.arch-col.old .arch-dot{background:var(--rojo)}
+.arch-col.new .arch-dot{background:var(--verde2)}
+.arch-row-text{font-size:0.85rem;color:rgba(255,255,255,0.7);line-height:1.4}
+
+/* SLIDE 4 — FEATURES */
+.s4{background:#0E1A13}
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:0.5rem}
+.feature-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:1.5rem;transition:all 0.3s;cursor:default;position:relative;overflow:hidden}
+.feature-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--verde2);transform:scaleX(0);transform-origin:left;transition:transform 0.3s}
+.feature-card:hover::before{transform:scaleX(1)}
+.feature-card:hover{background:rgba(26,107,69,0.12);border-color:rgba(26,107,69,0.3);transform:translateY(-4px)}
+.feature-num{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;color:rgba(26,107,69,0.3);margin-bottom:0.5rem;line-height:1}
+.feature-name{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;margin-bottom:0.5rem;color:#fff}
+.feature-desc{font-size:0.82rem;color:rgba(255,255,255,0.55);line-height:1.6;margin-bottom:0.75rem}
+.feature-badge{display:inline-block;font-size:0.7rem;font-weight:500;letter-spacing:0.05em;padding:0.2rem 0.65rem;border-radius:100px}
+.badge-now{background:rgba(245,200,66,0.15);color:var(--amarillo);border:1px solid rgba(245,200,66,0.3)}
+.badge-m2{background:rgba(26,107,69,0.15);color:var(--verde3);border:1px solid rgba(26,107,69,0.3)}
+.badge-m3{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.1)}
+.feature-star{position:absolute;top:1rem;right:1rem;font-size:1.2rem;opacity:0;transition:opacity 0.3s}
+.feature-card:hover .feature-star{opacity:1}
+
+/* SLIDE 5 — ROADMAP */
+.s5{background:#0A1510}
+.roadmap{display:flex;flex-direction:column;gap:0;margin-top:1rem}
+.roadmap-item{display:grid;grid-template-columns:180px 1fr;gap:0;position:relative}
+.roadmap-line{position:absolute;left:179px;top:0;bottom:0;width:2px;background:rgba(26,107,69,0.3)}
+.roadmap-phase{padding:1.25rem 1.5rem 1.25rem 0;text-align:right;position:relative}
+.roadmap-dot{position:absolute;right:-6px;top:50%;transform:translateY(-50%);width:12px;height:12px;border-radius:50%;background:var(--verde2);border:2px solid #0A1510;box-shadow:0 0 0 3px rgba(26,107,69,0.3)}
+.roadmap-phase-label{font-family:'Syne',sans-serif;font-weight:700;font-size:0.85rem;color:var(--verde3)}
+.roadmap-phase-tag{font-size:0.72rem;color:rgba(255,255,255,0.35);margin-top:0.15rem}
+.roadmap-content{padding:1rem 0 1rem 2rem;border-bottom:1px solid rgba(255,255,255,0.05)}
+.roadmap-item:last-child .roadmap-content{border-bottom:none}
+.roadmap-actions{font-size:0.85rem;color:rgba(255,255,255,0.65);line-height:1.6;margin-bottom:0.35rem}
+.roadmap-result{font-size:0.78rem;color:var(--verde3);opacity:0.7;font-style:italic}
+
+/* SLIDE 6 — IMPACTO */
+.s6{background:#0E1A13}
+.impact-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.25rem;margin-top:0.5rem}
+.impact-card{border-radius:14px;padding:1.75rem;display:flex;flex-direction:column;gap:0.5rem}
+.impact-card.big{background:rgba(26,107,69,0.2);border:1px solid rgba(26,107,69,0.4)}
+.impact-card.mid{background:rgba(245,200,66,0.08);border:1px solid rgba(245,200,66,0.2)}
+.impact-card.low{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)}
+.impact-val{font-family:'Syne',sans-serif;font-size:2.5rem;font-weight:800;line-height:1}
+.impact-card.big .impact-val{color:var(--verde3)}
+.impact-card.mid .impact-val{color:var(--amarillo)}
+.impact-card.low .impact-val{color:rgba(255,255,255,0.6)}
+.impact-label{font-weight:500;font-size:0.9rem;color:rgba(255,255,255,0.8)}
+.impact-desc{font-size:0.78rem;color:rgba(255,255,255,0.4);line-height:1.5}
+.closing-box{margin-top:1.5rem;background:rgba(26,107,69,0.12);border:1px solid rgba(26,107,69,0.3);border-radius:14px;padding:1.5rem 2rem;text-align:center}
+.closing-box p{font-family:'Syne',sans-serif;font-size:1.1rem;color:rgba(255,255,255,0.8);line-height:1.6}
+.closing-box strong{color:var(--amarillo)}
+
+/* PROGRESS BAR */
+.progress{position:fixed;top:0;left:0;height:3px;background:var(--amarillo);transition:width 0.3s;z-index:200}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .metrics-grid{grid-template-columns:repeat(2,1fr)}
+  .problems-list,.arch-compare,.features-grid,.impact-grid{grid-template-columns:1fr}
+  .roadmap-item{grid-template-columns:120px 1fr}
+  .s1-title{font-size:2.5rem}
+}
+
+/* FADE IN */
+.slide{opacity:0;transform:translateY(20px);transition:opacity 0.6s ease,transform 0.6s ease}
+.slide.visible{opacity:1;transform:none}
+
+/* FUNNEL SLIDE */
+.s-funnel{background:#0A1510}
+.funnel-wrap{width:100%;max-width:780px}
+.funnel-steps{display:flex;flex-direction:column;gap:0;position:relative}
+.funnel-step{position:relative;margin-bottom:0}
+.funnel-bar-wrap{display:flex;align-items:center;gap:1rem;margin-bottom:0.2rem}
+.funnel-bar{height:52px;border-radius:6px;display:flex;align-items:center;padding:0 1.25rem;position:relative;transition:all 0.3s;cursor:default;min-width:80px}
+.funnel-bar-label{font-weight:500;font-size:0.88rem;color:#fff;white-space:nowrap;z-index:1}
+.funnel-bar-n{font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;color:#fff;margin-left:auto;padding-left:1rem;white-space:nowrap;z-index:1}
+.funnel-meta{font-size:0.75rem;margin-bottom:0.9rem;padding-left:0.25rem;display:flex;align-items:center;gap:0.5rem}
+.funnel-pct{font-family:'Syne',sans-serif;font-weight:700;font-size:0.9rem}
+.funnel-desc{color:rgba(255,255,255,0.4)}
+.funnel-connector{width:2px;height:14px;margin-left:2rem;background:rgba(255,255,255,0.1);margin-bottom:0}
+.f-total{background:rgba(26,107,69,0.5);border:1px solid rgba(26,107,69,0.6)}
+.f-bot{background:rgba(26,107,69,0.35);border:1px solid rgba(26,107,69,0.45)}
+.f-cotizo{background:rgba(245,200,66,0.25);border:1px solid rgba(245,200,66,0.4)}
+.f-total-ped{background:rgba(245,200,66,0.4);border:1px solid rgba(245,200,66,0.6)}
+.f-efectivo{background:rgba(46,160,80,0.55);border:1px solid rgba(46,160,80,0.8)}
+.f-human{background:rgba(192,57,43,0.25);border:1px solid rgba(192,57,43,0.35);margin-top:0.5rem}
+.funnel-split{display:flex;gap:1rem;margin-top:0.5rem}
+.funnel-split-label{font-family:'Syne',sans-serif;font-size:0.68rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.4rem}
+.split-bot{color:var(--verde3)}
+.split-human{color:rgba(192,57,43,0.8)}
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<nav>
+  <div class="nav-logo">BONPRIX — Bot 2.0</div>
+  <div class="nav-dots" id="navDots"></div>
+</nav>
+
+<div class="deck">
+
+  <!-- SLIDE 1: PORTADA -->
+  <section class="slide s1" data-slide="0">
+    <div class="s1-bg">
+      <div class="s1-circle s1-c1"></div>
+      <div class="s1-circle s1-c2"></div>
+    </div>
+    <div style="position:relative;max-width:700px">
+      <div class="s1-tag">Propuesta Comercial — Abril 2026</div>
+      <h1 class="s1-title">Canal<br><span>WhatsApp</span><br>2.0</h1>
+      <p class="s1-sub">De cotizador a canal de ventas inteligente</p>
+      <blockquote class="s1-quote">
+        <p>"El bot de hoy <strong>atiende</strong>.<br>El bot de mañana <strong>vende</strong>."</p>
+      </blockquote>
+    </div>
+    <div class="scroll-hint"><span>SCROLL</span><div class="scroll-arrow"></div></div>
+  </section>
+
+  <!-- SLIDE 2: DIAGNÓSTICO -->
+  <section class="slide s2" data-slide="1">
+    <div style="max-width:900px;width:100%">
+      <div class="slide-label">01 — Diagnóstico</div>
+      <h2 class="slide-title">El bot funciona.<br><em>Pero tiene un techo.</em></h2>
+      <div class="metrics-grid">
+        <div class="metric-card"><span class="metric-val">1.163</span><span class="metric-label">Sesiones en 2026</span></div>
+        <div class="metric-card"><span class="metric-val">66%</span><span class="metric-label">Resuelto solo por el bot</span></div>
+        <div class="metric-card"><span class="metric-val">34%</span><span class="metric-label">Requirió intervención humana</span></div>
+        <div class="metric-card"><span class="metric-val">5.5/10</span><span class="metric-label">Nivel de madurez actual</span></div>
+      </div>
+      <div class="problems-list">
+        <div class="problem-item"><div class="problem-icon">✕</div><div class="problem-text">Catálogo hardcodeado — cada cambio de precio requiere intervención técnica</div></div>
+        <div class="problem-item"><div class="problem-icon">✕</div><div class="problem-text">Agente IA nativo de Botmaker — costoso, sin control sobre el modelo</div></div>
+        <div class="problem-item"><div class="problem-icon">✕</div><div class="problem-text">Cálculo de totales delegado al LLM — riesgo de errores matemáticos</div></div>
+        <div class="problem-item"><div class="problem-icon">✕</div><div class="problem-text">Sin respuesta a la pregunta clave: "¿Es más barato que el super?"</div></div>
+        <div class="problem-item"><div class="problem-icon">✕</div><div class="problem-text">Solo 75 pedidos efectivos de 1.163 sesiones — enorme brecha de conversión sin mecanismo de recuperación</div></div>
+        <div class="problem-item"><div class="problem-icon">✕</div><div class="problem-text">Promos hardcodeadas — riesgo de informar precios vencidos</div></div>
+        <div class="problem-item"><div class="problem-icon">✕</div><div class="problem-text">Arranque con menú estático — el cliente choca antes de poder hablar</div></div>
+        <div class="problem-item"><div class="problem-icon">✕</div><div class="problem-text">Sin pago integrado — todos los pedidos requieren un humano para cobrar</div></div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- SLIDE FUNNEL -->
+  <section class="slide s-funnel" data-slide="2">
+    <div class="funnel-wrap">
+      <div class="slide-label">01b — Funnel de conversión</div>
+      <h2 class="slide-title" style="margin-bottom:1.75rem">Así fluyen<br><em>las 1.163 sesiones.</em></h2>
+
+      <div class="funnel-steps">
+
+        <!-- TOTAL -->
+        <div class="funnel-step">
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar f-total" style="width:100%">
+              <span class="funnel-bar-label">Total de sesiones</span>
+              <span class="funnel-bar-n">1.163</span>
+            </div>
+          </div>
+          <div class="funnel-meta">
+            <span class="funnel-pct" style="color:var(--verde3)">100%</span>
+            <span class="funnel-desc">Punto de entrada al canal WhatsApp</span>
+          </div>
+        </div>
+
+        <!-- SPLIT BOT / HUMANO -->
+        <div class="funnel-split">
+          <div style="flex:2">
+            <div class="funnel-split-label split-bot">Bot autónomo</div>
+            <div class="funnel-bar-wrap">
+              <div class="funnel-bar f-bot" style="width:100%">
+                <span class="funnel-bar-label">Resuelto solo por IA</span>
+                <span class="funnel-bar-n">767</span>
+              </div>
+            </div>
+            <div class="funnel-meta">
+              <span class="funnel-pct" style="color:var(--verde3)">66%</span>
+              <span class="funnel-desc">del total de sesiones — sin intervención humana</span>
+            </div>
+
+            <div class="funnel-connector"></div>
+
+            <!-- COTIZARON -->
+            <div class="funnel-bar-wrap">
+              <div class="funnel-bar f-cotizo" style="width:50%">
+                <span class="funnel-bar-label">Cotizaron con la IA</span>
+                <span class="funnel-bar-n">387</span>
+              </div>
+            </div>
+            <div class="funnel-meta">
+              <span class="funnel-pct" style="color:var(--amarillo)">33%</span>
+              <span class="funnel-desc">del total de sesiones</span>
+            </div>
+
+            <div class="funnel-connector"></div>
+
+            <!-- LLEGARON A TOTAL -->
+            <div class="funnel-bar-wrap">
+              <div class="funnel-bar f-total-ped" style="width:29%">
+                <span class="funnel-bar-label">Totalizaron el pedido</span>
+                <span class="funnel-bar-n">110</span>
+              </div>
+            </div>
+            <div class="funnel-meta">
+              <span class="funnel-pct" style="color:var(--amarillo)">9.5%</span>
+              <span class="funnel-desc">del total de sesiones</span>
+            </div>
+
+            <div class="funnel-connector"></div>
+
+            <!-- PEDIDOS EFECTIVOS -->
+            <div class="funnel-bar-wrap">
+              <div class="funnel-bar f-efectivo" style="width:20%">
+                <span class="funnel-bar-label">Ventas del bot</span>
+                <span class="funnel-bar-n">75</span>
+              </div>
+            </div>
+            <div class="funnel-meta">
+              <span class="funnel-pct" style="color:#2EA050">6.4%</span>
+              <span class="funnel-desc">del total de sesiones — pedidos efectivos vía mail</span>
+            </div>
+          </div>
+
+          <!-- HUMANO -->
+          <div style="flex:1">
+            <div class="funnel-split-label split-human">Intervención humana</div>
+            <div class="funnel-bar f-human" style="height:52px;display:flex;align-items:center;padding:0 1.25rem;border-radius:6px">
+              <span class="funnel-bar-label" style="font-size:0.82rem">Derivado a asesor</span>
+              <span class="funnel-bar-n" style="font-size:1rem">396</span>
+            </div>
+            <div class="funnel-meta">
+              <span class="funnel-pct" style="color:rgba(192,57,43,0.9)">34%</span>
+              <span class="funnel-desc">carga operativa activa</span>
+            </div>
+            <div style="margin-top:0.75rem;background:rgba(192,57,43,0.08);border:1px solid rgba(192,57,43,0.2);border-radius:8px;padding:0.75rem;font-size:0.75rem;color:rgba(255,255,255,0.45);line-height:1.6">
+              Cada una de estas 396 sesiones requirió tiempo de un asesor. Con Bot 2.0 el objetivo es llevar este número a menos del 15%.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 3: ARQUITECTURA -->
+  <section class="slide s3" data-slide="3">
+    <div style="max-width:900px;width:100%">
+      <div class="slide-label">02 — Arquitectura</div>
+      <h2 class="slide-title">Mismo canal.<br><em>Motor nuevo.</em></h2>
+      <div class="arch-compare">
+        <div class="arch-col old" style="background:rgba(192,57,43,0.06);border:1px solid rgba(192,57,43,0.2)">
+          <div class="arch-col-header">⛔ Bot actual</div>
+          <div class="arch-col-body">
+            <div class="arch-row"><div class="arch-dot"></div><div class="arch-row-text">Agente nativo Botmaker (costo alto, sin control)</div></div>
+            <div class="arch-row"><div class="arch-dot"></div><div class="arch-row-text">Catálogo en archivo .xlsx interno del bot</div></div>
+            <div class="arch-row"><div class="arch-dot"></div><div class="arch-row-text">Promos hardcodeadas en el prompt</div></div>
+            <div class="arch-row"><div class="arch-dot"></div><div class="arch-row-text">Totales calculados por el LLM — riesgo de error</div></div>
+            <div class="arch-row"><div class="arch-dot"></div><div class="arch-row-text">Sin contexto acumulado entre mensajes</div></div>
+            <div class="arch-row"><div class="arch-dot"></div><div class="arch-row-text">Sin diferenciación competitiva</div></div>
+            <div class="arch-row"><div class="arch-dot"></div><div class="arch-row-text">Menú estático — el cliente elige antes de hablar</div></div>
+            <div class="arch-row"><div class="arch-dot"></div><div class="arch-row-text">Sin pago integrado — intervención humana obligatoria</div></div>
+          </div>
+        </div>
+        <div class="arch-col new" style="background:rgba(26,107,69,0.08);border:1px solid rgba(26,107,69,0.25)">
+          <div class="arch-col-header">✅ Bot 2.0 propuesto</div>
+          <div class="arch-col-body">
+            <div class="arch-row"><div class="arch-dot"></div><div class="arch-row-text">Gemini Flash API — costo mínimo, control total</div></div>
+            <div class="arch-row"><div class="arch-dot"></div><div class="arch-row-text">Catálogo en Google Sheets — editable por el equipo</div></div>
+            <div class="arch-row"><div class="arch-dot"></div><div class="arch-row-text">Promos en pestaña Sheets con vigencia automática</div></div>
+            <div class="arch-row"><div class="arch-dot"></div><div class="arch-row-text">Code Action JS — 100% exacto, auditable</div></div>
+            <div class="arch-row"><div class="arch-dot"></div><div class="arch-row-text">Historial completo en cada turno de conversación</div></div>
+            <div class="arch-row"><div class="arch-dot"></div><div class="arch-row-text">Comparador de precios con foto + 5 features nuevas</div></div>
+            <div class="arch-row"><div class="arch-dot"></div><div class="arch-row-text">IA conversacional desde el primer mensaje (sin menú)</div></div>
+            <div class="arch-row"><div class="arch-dot"></div><div class="arch-row-text">Venta directa con Mercado Pago — 5 productos</div></div>
+          </div>
+        </div>
+      </div>
+      <p style="margin-top:1.25rem;font-size:0.82rem;color:rgba(255,255,255,0.35);font-style:italic">Stack técnico: WhatsApp Business + Botmaker + Google Sheets + Apps Script + Gemini API — sin infraestructura nueva.</p>
+    </div>
+  </section>
+
+  <!-- SLIDE 4: FEATURES -->
+  <section class="slide s4" data-slide="4">
+    <div style="max-width:960px;width:100%">
+      <div class="slide-label">03 — Features</div>
+      <h2 class="slide-title">5 razones para que<br><em>el cliente elija Bonprix.</em></h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-num">01</div>
+          <div class="feature-name">IA conversacional desde el inicio</div>
+          <div class="feature-desc">El cliente escribe lo que quiere en lenguaje natural desde el primer "Hola". Gemini detecta la intención y enruta directamente, sin menús ni opciones previas que generen fricción.</div>
+          <span class="feature-badge badge-now">Fase 1 — Día 1</span>
+          <div class="feature-star">⭐</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-num">02</div>
+          <div class="feature-name">Venta directa con Mercado Pago</div>
+          <div class="feature-desc">5 productos destacados con botón de pago integrado. El cliente selecciona, recibe el link de MP y paga dentro del chat. Sin asesor, sin espera, sin fricción.</div>
+          <span class="feature-badge badge-now">Fase 1 — Día 1</span>
+          <div class="feature-star">⭐</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-num">03</div>
+          <div class="feature-name">Comparador de precios con foto</div>
+          <div class="feature-desc">El cliente saca una foto en Carrefour y el bot responde en segundos si Bonprix tiene ese producto más barato. Gemini Vision extrae el precio de la imagen automáticamente.</div>
+          <span class="feature-badge badge-now">Inmediata</span>
+          <div class="feature-star">⭐</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-num">04</div>
+          <div class="feature-name">Calculadora de evento</div>
+          <div class="feature-desc">¿Cuánto necesito para 50 personas? El bot pregunta perfil (solo cerveza, mixto, con niños), presupuesto y devuelve una lista con cantidades exactas y total.</div>
+          <span class="feature-badge badge-now">Inmediata</span>
+          <div class="feature-star">⭐</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-num">05</div>
+          <div class="feature-name">Pedido recurrente</div>
+          <div class="feature-desc">El bot recuerda el último pedido de cada cliente. Con un solo mensaje —"repetí el de la semana pasada"— el pedido está hecho. Crítico para revendedores B2B.</div>
+          <span class="feature-badge badge-m2">Día 17</span>
+        </div>
+        <div class="feature-card">
+          <div class="feature-num">06</div>
+          <div class="feature-name">Alerta de precio</div>
+          <div class="feature-desc">El cliente se suscribe a un producto ("avisame cuando baje el Fernet"). Apps Script detecta el cambio en Sheets y dispara el WhatsApp automáticamente.</div>
+          <span class="feature-badge badge-m2">Día 17</span>
+        </div>
+        <div class="feature-card">
+          <div class="feature-num">07</div>
+          <div class="feature-name">Lista de precios PDF on-demand</div>
+          <div class="feature-desc">El revendedor pide el catálogo del día y el bot genera y envía un PDF con precios actualizados en segundos. Hoy esto lo hace un humano.</div>
+          <span class="feature-badge badge-m3">Día 25</span>
+        </div>
+        <div class="feature-card" style="background:rgba(26,107,69,0.12);border-color:rgba(26,107,69,0.3);display:flex;align-items:center;justify-content:center;text-align:center">
+          <div>
+            <div style="font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;color:var(--verde3);margin-bottom:0.5rem">30 días</div>
+            <div style="font-size:0.82rem;color:rgba(255,255,255,0.5);line-height:1.6">De implementación total<br>sobre el stack actual</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 5: ROADMAP -->
+  <section class="slide s5" data-slide="5">
+    <div style="max-width:780px;width:100%">
+      <div class="slide-label">04 — Roadmap</div>
+      <h2 class="slide-title">30 días.<br><em>4 fases.</em></h2>
+      <div class="roadmap">
+        <div style="position:relative">
+          <div class="roadmap-line"></div>
+          <div class="roadmap-item">
+            <div class="roadmap-phase">
+              <div class="roadmap-phase-label">Fase 1</div>
+              <div class="roadmap-phase-tag">Días 1-7</div>
+              <div class="roadmap-dot"></div>
+            </div>
+            <div class="roadmap-content">
+              <div class="roadmap-actions">Catálogo a Google Sheets. Gemini Flash reemplaza agente nativo. IA conversacional desde el primer mensaje. Venta directa con Mercado Pago (5 productos). Code Action de cálculo y validación de mínimo.</div>
+              <div class="roadmap-result">→ Bot conversacional desde el arranque, con venta directa integrada y costo de IA reducido.</div>
+            </div>
+          </div>
+          <div class="roadmap-item">
+            <div class="roadmap-phase">
+              <div class="roadmap-phase-label">Fase 2</div>
+              <div class="roadmap-phase-tag">Días 8-16</div>
+              <div class="roadmap-dot"></div>
+            </div>
+            <div class="roadmap-content">
+              <div class="roadmap-actions">Comparador de precios con foto (Gemini Vision). Calculadora de evento por perfil y presupuesto.</div>
+              <div class="roadmap-result">→ Features diferenciadoras activas. El bot ya "vende".</div>
+            </div>
+          </div>
+          <div class="roadmap-item">
+            <div class="roadmap-phase">
+              <div class="roadmap-phase-label">Fase 3</div>
+              <div class="roadmap-phase-tag">Día 17</div>
+              <div class="roadmap-dot"></div>
+            </div>
+            <div class="roadmap-content">
+              <div class="roadmap-actions">Pedido recurrente con memoria por cliente. Alerta de precio vía Apps Script.</div>
+              <div class="roadmap-result">→ Fidelización B2B activa. Revendedores compran más rápido.</div>
+            </div>
+          </div>
+          <div class="roadmap-item">
+            <div class="roadmap-phase">
+              <div class="roadmap-phase-label">Fase 4</div>
+              <div class="roadmap-phase-tag">Día 25-30</div>
+              <div class="roadmap-dot" style="background:var(--amarillo)"></div>
+            </div>
+            <div class="roadmap-content" style="border-bottom:none">
+              <div class="roadmap-actions">PDF de catálogo on-demand. Dashboard básico en Looker Studio con métricas reales.</div>
+              <div class="roadmap-result">→ Canal completamente autónomo. Métricas de conversión visibles.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 6: IMPACTO -->
+  <section class="slide s6" data-slide="6">
+    <div style="max-width:900px;width:100%">
+      <div class="slide-label">05 — Impacto esperado</div>
+      <h2 class="slide-title">Los números<br><em>que le importan al negocio.</em></h2>
+      <div class="impact-grid">
+        <div class="impact-card big">
+          <div class="impact-val">33% → 48%</div>
+          <div class="impact-label">Tasa de conversión a pedido</div>
+          <div class="impact-desc">Calculadora de evento + recuperación de abandonos + comparador que elimina objeciones de precio</div>
+        </div>
+        <div class="impact-card mid">
+          <div class="impact-val">-60%</div>
+          <div class="impact-label">Costo del agente IA</div>
+          <div class="impact-desc">Gemini Flash vs agente nativo Botmaker. El mismo resultado a una fracción del costo.</div>
+        </div>
+        <div class="impact-card mid">
+          <div class="impact-val">+25%</div>
+          <div class="impact-label">Ticket promedio estimado</div>
+          <div class="impact-desc">La calculadora de evento arma pedidos completos. Los combos sugeridos aumentan el carrito.</div>
+        </div>
+        <div class="impact-card big">
+          <div class="impact-val">0 clicks</div>
+          <div class="impact-label">Para actualizar precios o promos</div>
+          <div class="impact-desc">El equipo de Bonprix edita una celda en Google Sheets. El bot lo refleja en tiempo real.</div>
+        </div>
+        <div class="impact-card mid" style="grid-column: span 2">
+          <div class="impact-val">5 SKUs con pago directo en el chat</div>
+          <div class="impact-label">Mercado Pago integrado desde Fase 1</div>
+          <div class="impact-desc">El cliente paga sin salir de WhatsApp. Primera vez que el canal genera ingresos sin intervención humana.</div>
+        </div>
+      </div>
+      <div class="closing-box">
+        <p>La brecha entre el bot actual y un canal de ventas inteligente<br>es <strong>más pequeña de lo que parece</strong>.<br>No requiere infraestructura nueva. Requiere las <strong>decisiones correctas</strong>.</p>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+const navDots = document.getElementById('navDots');
+const progress = document.getElementById('progress');
+
+slides.forEach((_,i) => {
+  const dot = document.createElement('div');
+  dot.className = 'nav-dot' + (i===0?' active':'');
+  dot.onclick = () => slides[i].scrollIntoView({behavior:'smooth'});
+  navDots.appendChild(dot);
+});
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if(e.isIntersecting){
+      e.target.classList.add('visible');
+      const idx = +e.target.dataset.slide;
+      document.querySelectorAll('.nav-dot').forEach((d,i) => d.classList.toggle('active', i===idx));
+      progress.style.width = ((idx+1)/slides.length*100)+'%';
+    }
+  });
+}, {threshold:0.4});
+
+slides.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
